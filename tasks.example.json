@@ -1,0 +1,30 @@
+{
+  "tasks": {
+
+    "typing": [
+      { "prompt": "Explain what a pointer is in C++. Type your answer:" },
+      { "prompt": "Write a C++ for loop that prints numbers 1 to 10. Type it:" }
+    ],
+
+    "trivia": [
+      { "prompt": "What is the chemical symbol for gold?", "answer": "au" },
+      { "prompt": "What is the powerhouse of the cell?", "answer": "mitochondria" }
+    ],
+
+    "coding": [
+      { "prompt": "What does RAII stand for?", "answer": "resource acquisition is initialization" },
+      { "prompt": "What data structure operates on a FIFO basis?", "answer": "queue" }
+    ],
+
+    "exercise": [
+      { "prompt": "Do 10 push-ups. Type DONE when finished.", "answer": "done" },
+      { "prompt": "Hold a plank for 30 seconds. Type DONE when finished.", "answer": "done" }
+    ],
+
+    "math": [
+      { "prompt": "What is 2 to the power of 8?", "answer": "256" },
+      { "prompt": "What is 7 x 8?", "answer": "56" }
+    ]
+
+  }
+}
