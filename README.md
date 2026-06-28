@@ -56,25 +56,25 @@ Gauntlet/
 
 ## Setup
 
-1.A `tasks.example.json` is included as a starting point. Before running Gauntlet, copy and rename it:
+1. A `tasks.example.json` is included as a starting point. Before running Gauntlet, copy and rename it:
 
 ```bat
 copy tasks.example.json tasks.json
 ```
 edit it with whatever tasks you'd like.
 
-2. Build both executables into `bin/`
-3. Place `tasks.json` in the same folder as the exes
-4. Run once to register the watcher on startup:
+2. Go into `lockscreen.cpp` and edit the emergency kill switch to something you want. Default is 'skip'.
+3. Build both executables into `bin/`
+4. Place `tasks.json` in the same folder as the exes
+5. Run once to register the watcher on startup:
    ```bat
    bin\watcher.exe --install
    ```
-5. Either log out and back in, or run `watcher.exe` manually to start watching
+6. Either log out and back in, or run `watcher.exe` manually to start watching
 
 From that point, every wake from sleep triggers Gauntlet.
 
 ---
-
 
 ## Building
 
