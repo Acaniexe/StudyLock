@@ -48,18 +48,23 @@ void DisableTaskManager(bool disable)
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {
-    g_keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, NULL, 0);
+    TaskManager taskManager;
 
+    if (taskManager.HasError())
+    {
+        LockScreen lockScreen(hInstance, taskManager.GetErrorMessage());
+        lockScreen.Run();
+        return 0;
+    }
+
+    g_keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, NULL, 0);
     DisableTaskManager(true);
 
-    TaskManager taskManager;
     Task currentTask = taskManager.GetRandomTask();
-
     LockScreen lockScreen(hInstance, currentTask);
     lockScreen.Run();
 
     DisableTaskManager(false);
-
     if (g_keyboardHook)
         UnhookWindowsHookEx(g_keyboardHook);
 

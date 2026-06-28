@@ -13,6 +13,7 @@ static const COLORREF COL_SUCCESS   = RGB(72,  199, 116);
 static const COLORREF COL_FAIL      = RGB(220,  60,  60);
 static const COLORREF COL_INPUT_BG  = RGB(20,  20,  35);
 static const COLORREF COL_INPUT_BOR = RGB(60,  60,  90);
+static const COLORREF COL_ERROR     = RGB(220, 100, 40);
 
 static std::string ToLower(const std::string& s)
 {
@@ -57,8 +58,18 @@ static std::vector<std::string> WordWrap(HDC hdc, const std::string& text, int m
 
 LockScreen::LockScreen(HINSTANCE hInstance, const Task& task)
     : m_hInstance(hInstance), m_hwnd(NULL), m_task(task),
-      m_completed(false), m_failed(false), m_failTimer(0)
+      m_completed(false), m_failed(false), m_failTimer(0),
+      m_errorMode(false)
 {
+    s_instance = this;
+}
+
+LockScreen::LockScreen(HINSTANCE hInstance, const std::string& errorMessage)
+    : m_hInstance(hInstance), m_hwnd(NULL),
+      m_completed(false), m_failed(false), m_failTimer(0),
+      m_errorMode(true), m_errorMessage(errorMessage)
+{
+    m_task = { TRIVIA, "", "" };
     s_instance = this;
 }
 
@@ -110,6 +121,28 @@ LRESULT CALLBACK LockScreen::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
         case WM_CHAR:
             if (ls) ls->OnChar(hwnd, (TCHAR)wParam);
             return 0;
+
+        case WM_LBUTTONDOWN:
+        {
+            if (ls && ls->m_errorMode)
+            {
+                int sw = GetSystemMetrics(SM_CXSCREEN);
+                int sh = GetSystemMetrics(SM_CYSCREEN);
+                int btnW = 200, btnH = 52;
+                int btnX = sw / 2 - btnW / 2;
+                int btnY = sh / 2 + 60;
+
+                int mx = LOWORD(lParam);
+                int my = HIWORD(lParam);
+
+                if (mx >= btnX && my <= btnX + btnW &&
+                    my >= btnY && my <= btnY + btnH)
+                {
+                    DestroyWindow(hwnd);
+                }
+            }
+            return 0;
+        }
 
         case WM_TIMER:
             if (ls && ls->m_failed)
@@ -221,7 +254,33 @@ void LockScreen::OnPaint(HWND hwnd)
     FillRect(memDC, &fullRect, bgBrush);
     DeleteObject(bgBrush);
 
-    if (m_completed)
+    if (m_errorMode)
+    {
+        RECT titleRect = { 0, sh / 2 - 120, sw, sh /2 - 60 };
+        DrawCenteredText(memDC, "GAUNTLET", titleRect, COL_ERROR, 48, true);
+
+        RECT msgRect = { sw / 4, sh / 2 - 40, sw * 3 / 4, sh / 2 + 60 };
+        DrawTextA(memDC, m_errorMessage.c_str(), -1, &msgRect,
+                  DT_CENTER | DT_WORDBREAK);
+
+        int btnW = 200, btnH = 52;
+        int btnX = sw / 2 - btnW / 2;
+        int btnY = sh / 2 + 60;
+
+        HBRUSH btnBrush = CreateSolidBrush(COL_ERROR);
+        HPEN btnPen = CreatePen(PS_SOLID, 0, COL_ERROR);
+        HBRUSH oldBr = (HBRUSH)SelectObject(memDC, btnBrush);
+        HPEN oldPen = (HPEN)SelectObject(memDC, btnPen);
+        RoundRect(memDC, btnX, btnY, btnX + btnW, btnY + btnH, 8, 8);
+        SelectObject(memDC, oldBr);
+        SelectObject(memDC, oldPen);
+        DeleteObject(btnBrush);
+        DeleteObject(btnPen);
+
+        RECT btnTextRect = { btnX, btnY, btnX + btnW, btnY + btnH };
+        DrawCenteredText(memDC, "Close", btnTextRect, RGB(255,255,255), 18, true);
+    }
+    else if (m_completed)
     {
         RECT r = { 0, 0, sw, sh };
         DrawCenteredText(memDC, "UNLOCKED", r, RGB(255,255,255), 72, true);

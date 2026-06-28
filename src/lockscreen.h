@@ -7,6 +7,7 @@ class LockScreen
 {
 public:
     LockScreen(HINSTANCE hInstance, const Task& task);
+    LockScreen(HINSTANCE hInstance, const std::string& errorMessage);
     void Run();
 
 private:
@@ -23,6 +24,9 @@ private:
     bool m_completed;
     bool m_failed;
     int m_failTimer;
+
+    bool m_errorMode = false;
+    std::string m_errorMessage;
 
     static LockScreen* s_instance;
 };

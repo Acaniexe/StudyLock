@@ -30,7 +30,7 @@ TaskManager::TaskManager()
 {
     srand((unsigned int)time(NULL));
 
-    std::string jsonPath = GetExeDir() + "\\..\\tasks.json";
+    std::string jsonPath = GetExeDir() + "\\tasks.json";
     LoadFromJson(jsonPath);
 }
 
@@ -39,15 +39,17 @@ void TaskManager::LoadFromJson(const std::string& path)
     std::ifstream file(path);
     if (!file.is_open())
     {
-        m_tasks.push_back({ TRIVIA, "tasks,json not found! Check your gauntlet folder.", "oops" });
-        return;
+       m_error = true;
+       m_errorMessage = "tasks.json not found!\n\nPlace tasks.json in the same folder as gauntlet.exe.";
+       return;
     }
 
     json data;
     try { file >> data; }
     catch (...)
     {
-        m_tasks.push_back({ TRIVIA, "tasks.json contains invalid JSON. Please Fix it.", "oops" });
+        m_error = true;
+        m_errorMessage = "tasks.json contains invalid JSON.\n\nCheck your formatting at jsonlint.com.";
         return;
     }
 
@@ -68,7 +70,10 @@ void TaskManager::LoadFromJson(const std::string& path)
     }
 
     if (m_tasks.empty())
-        m_tasks.push_back({ TRIVIA, "No tasks found in tasks.json!", "oops" });
+    {
+        m_error = true;
+        m_errorMessage = "tasks.json is empty!\n\nAdd some tasks and try again.";
+    }
 }
 
 Task TaskManager::GetRandomTask()
